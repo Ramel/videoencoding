@@ -24,7 +24,7 @@ from itools.core import get_version
 from ikaaro.registry import register_document_type
 from ikaaro.skins import register_skin
 
-from video import Video
+from video import VideoEncodingToFLV
 
 # The version
 __version__ = get_version()
@@ -34,4 +34,4 @@ path = get_abspath('ui')
 register_skin('video', path)
 
 # Register document type
-register_document_type(Video)
+register_document_type(VideoEncodingToFLV)
