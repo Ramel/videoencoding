@@ -16,10 +16,15 @@
 
 # Import from the Standard Library
 import commands
+import re
+
+# Import from itools
+from itools.gettext import MSG
 
 # Import from ikaaro
 from ikaaro.folder import Folder
 from ikaaro.registry import register_resource_class
+from ikaaro.file import Video
 
 # Debug
 from pprint import pprint
@@ -36,27 +41,38 @@ class VideoEncodingToFLV(Video):
 
     #__fixed_handlers__ = ['product', 'module', 'version', 'type', 'priority',
     #    'state', 'calendar']
-    
+    """
     def encode(self, filename, ratio):
         # Encode
+    """
 
-    def get_ratio(self, filename):
-        """Need the "ffmpeg" cli to be on the PATH
+    def get_ratio(self, path, filename):
         """
-        
-        output = commands.getoutput('ffmpeg -i %s') % filename
+        Need the "ffmpeg" cli to be on the PATH
+        """
+        path_and_filename = '%s%s' % (path, filename)
+        pprint('===path_and_filename===')
+        pprint(path_and_filename)
+        #ls = commands.getoutput('pwd')
+        #pprint(ls)
+        output = commands.getoutput('ffmpeg -i %s') % (path_and_filename)
+        pprint(output)
+        # Regex inside the output
         m = re.search('Video: [^\\n]*\\n', output)
+        pprint(m)
         m = m.replace('Video: ', '')
         m = m.replace('\n', '')
         m = m.split(', ')
-        size = m[2].split('z')
-        ratio = %d / %d % (size[0], size[1])
-        pprint ratio
-
+        size = m[2].split('x')
+        ratio = "%d / %d" % (size[0], size[1])
+        pprint(ratio)
+        """
+        else:
+            ratio = null
+            pprint(ratio)
+        """
         return ratio
-
 
 ###########################################################################
 # Register
-###########################################################################
 register_resource_class(VideoEncodingToFLV)

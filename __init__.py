@@ -31,7 +31,16 @@ __version__ = get_version()
 
 # Register skin
 path = get_abspath('ui')
-register_skin('video', path)
+register_skin('videoencoding', path)
 
 # Register document type
 register_document_type(VideoEncodingToFLV)
+
+###########################################################################
+# Check for required software
+###########################################################################
+for name, import_path in [("ffmpeg", "ffmpeg")]:
+    try:
+        __import__(import_path)
+    except ImportError:
+        print 'You need to install "%s".' % name
