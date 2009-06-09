@@ -16,10 +16,14 @@
 
 # Import from the Standard Library
 import commands
+from subprocess import call, Popen, PIPE
 import re
+import sys
 
 # Import from itools
 from itools.gettext import MSG
+from itools.web import ERROR
+from itools.core.utils import get_pipe
 
 # Import from ikaaro
 from ikaaro.folder import Folder
@@ -35,42 +39,43 @@ class VideoEncodingToFLV(Video):
     class_id = 'video_encoding'
     class_title = MSG(u'Video Encoding')
     class_description = MSG(u'Encode in FLV an AVI video file')
-    #class_icon16 = 'tracker/tracker16.png'
-    #class_icon48 = 'tracker/tracker48.png'
-    #class_views = ['view', 'add_issue', 'search', 'browse_content', 'edit']
-
-    #__fixed_handlers__ = ['product', 'module', 'version', 'type', 'priority',
-    #    'state', 'calendar']
+    
     """
     def encode(self, filename, ratio):
         # Encode
     """
 
-    def get_ratio(self, path, filename):
+    def get_ratio(self, dirname, filename):
         """
         Need the "ffmpeg" cli to be on the PATH
         """
-        path_and_filename = '%s%s' % (path, filename)
-        pprint('===path_and_filename===')
-        pprint(path_and_filename)
-        #ls = commands.getoutput('pwd')
-        #pprint(ls)
-        output = commands.getoutput('ffmpeg -i %s') % (path_and_filename)
+        
+        # The command to get the video ratio
+        command = ['ffmpeg', '-i', filename]
+
+        #output = get_pipe(command, cwd=dirname).read()
+        popen = Popen(command, stdout=PIPE, stderr=PIPE, cwd=dirname)
+        errno = popen.wait()
+        output2 = popen.stdout
+        # Working with the std error as output
+        # because we use the -i in the cli 
+        output = popen.stderr.read()
+        pprint('===output==')
         pprint(output)
-        # Regex inside the output
-        m = re.search('Video: [^\\n]*\\n', output)
-        pprint(m)
-        m = m.replace('Video: ', '')
-        m = m.replace('\n', '')
-        m = m.split(', ')
-        size = m[2].split('x')
-        ratio = "%d / %d" % (size[0], size[1])
-        pprint(ratio)
-        """
+        pprint('===isinstance==')
+        pprint('%s' % isinstance(output, basestring)) 
+        
+        if output is not None:
+            
+            m = re.search('Video: [^\\n]*\\n', output)
+            pprint('%s' % m.group(0))
+            m = m.group(0).replace('Video: ', '').replace('\n', '').split(', ')
+            pprint('===m===')
+            pprint('%s' % m)
+            size = m[2].split('x')
+            ratio = float(size[0])/float(size[1])
         else:
-            ratio = null
-            pprint(ratio)
-        """
+            ratio = "Nothing at all"
         return ratio
 
 ###########################################################################
