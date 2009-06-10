@@ -24,6 +24,7 @@ import sys
 from itools.gettext import MSG
 from itools.web import ERROR
 from itools.core.utils import get_pipe
+from itools import vfs
 
 # Import from ikaaro
 from ikaaro.folder import Folder
@@ -46,7 +47,7 @@ class VideoEncodingToFLV(Video):
     """
 
     def get_ratio(self, dirname, filename):
-        """
+        """Return the ratio of the filename (a video)
         Need the "ffmpeg" cli to be on the PATH
         """
         
@@ -56,7 +57,7 @@ class VideoEncodingToFLV(Video):
         #output = get_pipe(command, cwd=dirname).read()
         popen = Popen(command, stdout=PIPE, stderr=PIPE, cwd=dirname)
         errno = popen.wait()
-        output2 = popen.stdout
+        #output2 = popen.stdout
         # Working with the std error as output
         # because we use the -i in the cli 
         output = popen.stderr.read()
@@ -65,8 +66,7 @@ class VideoEncodingToFLV(Video):
         pprint('===isinstance==')
         pprint('%s' % isinstance(output, basestring)) 
         
-        if output is not None:
-            
+        if output is not None:    
             m = re.search('Video: [^\\n]*\\n', output)
             pprint('%s' % m.group(0))
             m = m.group(0).replace('Video: ', '').replace('\n', '').split(', ')
@@ -78,6 +78,46 @@ class VideoEncodingToFLV(Video):
             ratio = "Nothing at all"
         return ratio
 
+    def encode_avi_to_flv(self, tmpfolder, inputfile, name, width):
+        # name is unique in this thread
+        # inputfile = original file name
+        # outputfile = the name variable, unique name
+        flv_filename = "%s.flv" % name
+        ratio = self.get_ratio(tmpfolder, inputfile)
+        height = int(round(float(width)/ratio))
+        pprint('===height===')
+        pprint('%s' % height)
+        pprint('===width===')
+        pprint('%s' % width)
+        ffmpeg = ['ffmpeg', '-i', '%s' % inputfile, '-acodec', 'mp3', '-ar', '22050',
+            '-ab', '32', '-f', 'flv', '-s', '%sx%s' % (width, height), flv_filename]
+        get_pipe(ffmpeg, cwd=tmpfolder)
+        
+        mimetype = 'video/x-flv'
+        extension = 'flv'
+        tmpdir = vfs.open(tmpfolder)
+        file = tmpdir.open(flv_filename)
+        try:
+            data = file.read()
+        finally:
+            file.close()
+        
+        #flvfile(filenname, mimetype, body) = 
+        # OK return OK if encoded
+        flvfile = [flv_filename, mimetype, data, extension] 
+        return flvfile
+ 
+    def make_flv_thumbnail(self, destfolder, filename, width):
+        thumb_filename = "%s.png" % inputfile
+        ffmpegthumbnailer = ['ffmpegthumbnailer', '-i', '%s.flv' % filename, '-o', '%s.png' % filename, '-s', '%s' % width]
+        get_pipe(ffmpegthumbnailer, cwd=destfolder)
+        return thumbnail
+    
+    def add_metadata_to_flv(self, destfolder, filename):
+        flvtool2 = ['flvtool2', '-U', '%s' % filename]
+        get_pipe(flvtool2, cwd=destfolder)
+
+        
 ###########################################################################
 # Register
 register_resource_class(VideoEncodingToFLV)
