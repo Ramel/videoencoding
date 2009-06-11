@@ -92,7 +92,7 @@ class VideoEncodingToFLV(Video):
         pprint('%s' % width)
         """
         ffmpeg = ['ffmpeg', '-i', '%s' % inputfile, '-acodec', 'mp3', '-ar', '22050',
-            '-ab', '32', '-f', 'flv', '-s', '%sx%s' % (width, height), flv_filename]
+            '-ab', '32', '-f', 'flv', '-s', '%sx%s' % (width, height), '-b', '576',  flv_filename]
         get_pipe(ffmpeg, cwd=tmpfolder)
 
         self.add_metadata_to_flv(tmpfolder, flv_filename)
@@ -101,11 +101,11 @@ class VideoEncodingToFLV(Video):
 
         tmpdir = vfs.open(tmpfolder)
         # Copy the flv content to a data variable
-        file = tmpdir.open(flv_filename)
+        flv_file = tmpdir.open(flv_filename)
         try:
-            data = file.read()
+            flv_data = flv_file.read()
         finally:
-            file.close()
+            flv_file.close()
         # Copy the thumb content
         thumb_file = tmpdir.open('%s.png' % name)
         try:
@@ -114,10 +114,14 @@ class VideoEncodingToFLV(Video):
             thumb_file.close()
 
         # Return a FLV file and a PNG thumbnail
-        flvfile = [flv_filename, 'video/x-flv', data, 'flv']
+        flvfile = [flv_filename, 'video/x-flv', flv_data, 'flv']
         flvthumb = ['thumb_%s.png' % name, 'image/png', thumb_data, 'png']
         
-        encoded = {'flvfile':flvfile, 'flvthumb':flvthumb}
+        if((len(flv_data) == 0) or (len(thumb_data) == 0)):
+             #exit
+            encoded = None
+        else:
+            encoded = {'flvfile':flvfile, 'flvthumb':flvthumb}
 
         return encoded
  
