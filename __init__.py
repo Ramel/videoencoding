@@ -24,6 +24,9 @@ from itools.core import get_version
 from ikaaro.registry import register_document_type
 from ikaaro.skins import register_skin
 
+# Import from tchacker
+from tchacker.utils import which
+
 from video import VideoEncodingToFLV
 
 # The version
@@ -31,7 +34,14 @@ __version__ = get_version()
 
 # Register skin
 path = get_abspath('ui')
-register_skin('videoencoding', path)
+register_skin('flowplayer', path)
 
 # Register document type
 register_document_type(VideoEncodingToFLV)
+
+###############################################################################
+# Check required software
+###############################################################################
+for name, cli in [("ffmpeg", "ffmpeg"), ("ffmpegthumbnailer", "ffmpegthumbnailer")]:
+    if(which(cli)) is None:
+        print 'You need to install "%s".' % name
