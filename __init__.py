@@ -42,6 +42,6 @@ register_document_type(VideoEncodingToFLV)
 ###############################################################################
 # Check required software
 ###############################################################################
-for name, cli in [("ffmpeg", "ffmpeg"), ("ffmpegthumbnailer", "ffmpegthumbnailer")]:
+for name, cli in [("ffmpeg", "ffmpeg"), "ffmpeg", "ffmpeg"), ("ffmpegthumbnailer", "ffmpegthumbnailer")]:
     if(which(cli)) is None:
         print 'You need to install "%s".' % name
