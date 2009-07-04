@@ -46,6 +46,32 @@ class VideoEncodingToFLV(Video):
         # Encode
     """
 
+    def get_size_and_ratio(self, filename):
+        """Return the width, height and ratio of the filename (a video)
+        Need the "ffmpeg" cli to be on the PATH
+        """
+        #dirname = "." 
+        # The command to get the video ratio
+        command = ['ffmpeg', '-i', filename]
+
+        #output = get_pipe(command, cwd=dirname).read()
+        #popen = Popen(command, stdout=PIPE, stderr=PIPE, cwd=dirname)
+        popen = Popen(command, stdout=PIPE, stderr=PIPE)
+        errno = popen.wait()
+        output = popen.stderr.read()
+
+        if output is not None:    
+            m = re.search('Video: [^\\n]*\\n', output)
+            m = m.group(0).replace('Video: ', '').replace('\n', '').split(', ')
+            
+            size = m[2].split('x')
+            ratio = float(size[0])/float(size[1])
+            #ratio =  { 'width': size[0], 'height': size[1], 'ratio': ratio }
+            ratio =  [size[0], size[1], ratio]
+        else:
+            ratio = "Cannot calculate the Video size and ratio"
+        return ratio
+    
     def get_ratio(self, dirname, filename):
         """Return the ratio of the filename (a video)
         Need the "ffmpeg" cli to be on the PATH
@@ -74,6 +100,9 @@ class VideoEncodingToFLV(Video):
             """
             size = m[2].split('x')
             ratio = float(size[0])/float(size[1])
+            width = str(size[0])
+            height = str(size[1])
+            
         else:
             ratio = "Cannot calculate the Video ratio"
         return ratio
