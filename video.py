@@ -40,7 +40,7 @@ class VideoEncodingToFLV(Video):
     class_id = 'video_encoding'
     class_title = MSG(u'Video Encoding')
     class_description = MSG(u'Encode in FLV an AVI video file')
-    
+
     """
     def encode(self, filename, ratio):
         # Encode
@@ -50,7 +50,7 @@ class VideoEncodingToFLV(Video):
         """Return the width, height and ratio of the filename (a video)
         Need the "ffmpeg" cli to be on the PATH
         """
-        #dirname = "." 
+        #dirname = "."
         # The command to get the video ratio
         command = ['ffmpeg', '-i', filename]
 
@@ -60,23 +60,25 @@ class VideoEncodingToFLV(Video):
         errno = popen.wait()
         output = popen.stderr.read()
 
-        if output is not None:    
+        if output is not None:
             m = re.search('Video: [^\\n]*\\n', output)
             m = m.group(0).replace('Video: ', '').replace('\n', '').split(', ')
-            
-            size = m[2].split('x')
+            # Sometime it returns a '[blabla]', remove it
+            size = m[2].split('[')
+            size = size[0].split('x')
+            #pprint("size = %s x %s" % (size[0], size[1]))
             ratio = float(size[0])/float(size[1])
             #ratio =  { 'width': size[0], 'height': size[1], 'ratio': ratio }
             ratio =  [size[0], size[1], ratio]
         else:
             ratio = "Cannot calculate the Video size and ratio"
         return ratio
-    
+
     def get_ratio(self, dirname, filename):
         """Return the ratio of the filename (a video)
         Need the "ffmpeg" cli to be on the PATH
         """
-        
+
         # The command to get the video ratio
         command = ['ffmpeg', '-i', filename]
 
@@ -90,7 +92,7 @@ class VideoEncodingToFLV(Video):
         pprint('===isinstance==')
         pprint('%s' % isinstance(output, basestring)) 
         """
-        if output is not None:    
+        if output is not None:
             m = re.search('Video: [^\\n]*\\n', output)
             #pprint('%s' % m.group(0))
             m = m.group(0).replace('Video: ', '').replace('\n', '').split(', ')
@@ -102,7 +104,7 @@ class VideoEncodingToFLV(Video):
             ratio = float(size[0])/float(size[1])
             width = str(size[0])
             height = str(size[1])
-            
+
         else:
             ratio = "Cannot calculate the Video ratio"
         return ratio
@@ -152,7 +154,7 @@ class VideoEncodingToFLV(Video):
         # Return a FLV file and a PNG thumbnail
         flvfile = [flv_filename, 'video/x-flv', flv_data, 'flv']
         flvthumb = ['thumb_%s' % name, 'image/png', thumb_data, 'png']
-        
+
         if((len(flv_data) == 0) or (len(thumb_data) == 0)):
              #exit
             encoded = None
@@ -160,16 +162,16 @@ class VideoEncodingToFLV(Video):
             encoded = {'flvfile':flvfile, 'flvthumb':flvthumb}
 
         return encoded
- 
+
     def make_flv_thumbnail(self, destfolder, filename, width):
         ffmpegthumbnailer = ['ffmpegthumbnailer', '-i', '%s.flv' % filename, '-o', '%s.png' % filename, '-s', '%s' % width]
         get_pipe(ffmpegthumbnailer, cwd=destfolder)
-    
+
     def add_metadata_to_flv(self, destfolder, filename):
         flvtool2 = ['flvtool2', '-U', '%s' % filename]
         get_pipe(flvtool2, cwd=destfolder)
 
-        
+
 ###########################################################################
 # Register
 register_resource_class(VideoEncodingToFLV)
