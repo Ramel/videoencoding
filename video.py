@@ -122,12 +122,6 @@ class VideoEncodingToFLV(Video):
         pprint('===width===')
         pprint('%s' % width)
         """
-        # Use -sameq to keep input video quality
-        """
-        ffmpeg = ['ffmpeg', '-i', '%s' % inputfile, '-acodec', 'mp3', '-ar', '22050',
-            '-ab', '32', '-f', 'flv', '-s', '%sx%s' % (width, height),
-            '-b', '576000', flv_filename]
-        """
         ffmpeg = ['ffmpeg', '-i', '%s' % inputfile, '-acodec', 'mp3', '-ar', '22050',
             '-ab', '32', '-f', 'flv', '-s', '%sx%s' % (width, height),
             '-sameq', flv_filename]
@@ -154,6 +148,7 @@ class VideoEncodingToFLV(Video):
         # Return a FLV file and a PNG thumbnail
         flvfile = [flv_filename, 'video/x-flv', flv_data, 'flv']
         flvthumb = ['thumb_%s' % name, 'image/png', thumb_data, 'png']
+        # Need to add the PNG to ikaaro
 
         if((len(flv_data) == 0) or (len(thumb_data) == 0)):
              #exit
