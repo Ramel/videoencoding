@@ -61,17 +61,22 @@ class VideoEncodingToFLV(Video):
         output = popen.stderr.read()
 
         if output is not None:
-            m = re.search('Video: [^\\n]*\\n', output)
-            m = m.group(0).replace('Video: ', '').replace('\n', '').split(', ')
-            # Sometime it returns a '[blabla]', remove it
-            size = m[2].split('[')
-            size = size[0].split('x')
-            #pprint("size = %s x %s" % (size[0], size[1]))
-            ratio = float(size[0])/float(size[1])
-            #ratio =  { 'width': size[0], 'height': size[1], 'ratio': ratio }
-            ratio =  [size[0], size[1], ratio]
+            ratio = self.grep_ratio(output)
         else:
             ratio = "Cannot calculate the Video size and ratio"
+        return ratio
+
+    def grep_ratio(self, output):
+        m = re.search('Video: [^\\n]*\\n', output)
+        #pprint('%s' % m.group(0))
+        m = m.group(0).replace('Video: ', '').replace('\n', '').split(', ')
+        # Sometime it returns a '[blabla]', remove it
+        size = m[2].split('[')
+        size = size[0].split('x')
+        ratio = float(size[0])/float(size[1])
+        width = str(size[0])
+        height = str(size[1])
+        
         return ratio
 
     def get_ratio(self, dirname, filename):
@@ -93,26 +98,15 @@ class VideoEncodingToFLV(Video):
         pprint('%s' % isinstance(output, basestring)) 
         """
         if output is not None:
-            m = re.search('Video: [^\\n]*\\n', output)
-            #pprint('%s' % m.group(0))
-            m = m.group(0).replace('Video: ', '').replace('\n', '').split(', ')
-            """
-            pprint('===m===')
-            pprint('%s' % m)
-            """
-            size = m[2].split('x')
-            ratio = float(size[0])/float(size[1])
-            width = str(size[0])
-            height = str(size[1])
-
+            ratio = self.grep_ratio(output)
         else:
             ratio = "Cannot calculate the Video ratio"
         return ratio
 
     def encode_avi_to_flv(self, tmpfolder, inputfile, name, width):
-        # name is unique in this thread
-        # inputfile = original file name
-        # outputfile = the name variable, unique name
+        """ Take a *inputfile* video, tafking is *name*, encode it in flv inside
+        the *tmpfolder*, at given *width*.
+        """
         flv_filename = "%s.flv" % name
         ratio = self.get_ratio(tmpfolder, inputfile)
         height = int(round(float(width)/ratio))
@@ -122,33 +116,34 @@ class VideoEncodingToFLV(Video):
         pprint('===width===')
         pprint('%s' % width)
         """
-        ffmpeg = ['ffmpeg', '-i', '%s' % inputfile, '-acodec', 'mp3', '-ar', '22050',
-            '-ab', '32', '-f', 'flv', '-s', '%sx%s' % (width, height),
+        ffmpeg = ['ffmpeg', '-i', '%s' % inputfile, '-acodec', 'libfaac', '-ar', '22050',
+            '-ab', '32k', '-f', 'flv', '-s', '%sx%s' % (width, height),
             '-sameq', flv_filename]
         get_pipe(ffmpeg, cwd=tmpfolder)
 
         self.add_metadata_to_flv(tmpfolder, flv_filename)
-
         self.make_flv_thumbnail(tmpfolder, name, width)
 
         tmpdir = vfs.open(tmpfolder)
+        
         # Copy the flv content to a data variable
         flv_file = tmpdir.open(flv_filename)
         try:
             flv_data = flv_file.read()
         finally:
             flv_file.close()
+        
         # Copy the thumb content
         thumb_file = tmpdir.open('%s.png' % name)
         try:
             thumb_data = thumb_file.read()
         finally:
             thumb_file.close()
+        # Need to add the PNG to ikaaro
 
         # Return a FLV file and a PNG thumbnail
         flvfile = [flv_filename, 'video/x-flv', flv_data, 'flv']
         flvthumb = ['thumb_%s' % name, 'image/png', thumb_data, 'png']
-        # Need to add the PNG to ikaaro
 
         if((len(flv_data) == 0) or (len(thumb_data) == 0)):
              #exit
