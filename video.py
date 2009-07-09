@@ -63,10 +63,10 @@ class VideoEncodingToFLV(Video):
         if output is not None:
             size = self.get_size(output)
             ratio = float(size[0])/float(size[1])
-            ratio = [size[0], size[1], ratio] 
+            ratio = [size[0], size[1], ratio]
         else:
             ratio = "Cannot calculate the Video size and ratio"
-        
+
         #pprint("Ratio = %s" % ratio)
 
         return ratio
@@ -80,13 +80,13 @@ class VideoEncodingToFLV(Video):
         size = m[2].split('[')
         size = size[0].split('x')
         #ratio = float(size[0])/float(size[1])
-        
+
         #width = str(size[0])
         #height = str(size[1])
-        
+
         size = [size[0], size[1]]
         return size
-    
+
     def get_ratio(self, dirname, filename):
         """Return the ratio of the filename (a video)
         Need the "ffmpeg" cli to be on the PATH
@@ -103,7 +103,7 @@ class VideoEncodingToFLV(Video):
         pprint('===output==')
         pprint(output)
         pprint('===isinstance==')
-        pprint('%s' % isinstance(output, basestring)) 
+        pprint('%s' % isinstance(output, basestring))
         """
         if output is not None:
             size = self.get_size(output)
@@ -133,14 +133,14 @@ class VideoEncodingToFLV(Video):
         self.make_flv_thumbnail(tmpfolder, name, width)
 
         tmpdir = vfs.open(tmpfolder)
-        
+
         # Copy the flv content to a data variable
         flv_file = tmpdir.open(flv_filename)
         try:
             flv_data = flv_file.read()
         finally:
             flv_file.close()
-        
+
         # Copy the thumb content
         thumb_file = tmpdir.open('%s.png' % name)
         try:
@@ -162,7 +162,8 @@ class VideoEncodingToFLV(Video):
         return encoded
 
     def make_flv_thumbnail(self, destfolder, filename, width):
-        ffmpegthumbnailer = ['ffmpegthumbnailer', '-i', '%s.flv' % filename, '-o', '%s.png' % filename, '-s', '%s' % width]
+        ffmpegthumbnailer = ['ffmpegthumbnailer', '-i', '%s.flv' % filename,
+    '-o', '%s.png' % filename, '-t', '0', '-s', '%s' % width]
         get_pipe(ffmpegthumbnailer, cwd=destfolder)
 
     def add_metadata_to_flv(self, destfolder, filename):
