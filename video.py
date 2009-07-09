@@ -61,24 +61,32 @@ class VideoEncodingToFLV(Video):
         output = popen.stderr.read()
 
         if output is not None:
-            ratio = self.grep_ratio(output)
+            size = self.get_size(output)
+            ratio = float(size[0])/float(size[1])
+            ratio = [size[0], size[1], ratio] 
         else:
             ratio = "Cannot calculate the Video size and ratio"
+        
+        #pprint("Ratio = %s" % ratio)
+
         return ratio
 
-    def grep_ratio(self, output):
+    def get_size(self, output):
         m = re.search('Video: [^\\n]*\\n', output)
         #pprint('%s' % m.group(0))
         m = m.group(0).replace('Video: ', '').replace('\n', '').split(', ')
+        pprint("m = %s" % m)
         # Sometime it returns a '[blabla]', remove it
         size = m[2].split('[')
         size = size[0].split('x')
-        ratio = float(size[0])/float(size[1])
-        width = str(size[0])
-        height = str(size[1])
+        #ratio = float(size[0])/float(size[1])
         
-        return ratio
-
+        #width = str(size[0])
+        #height = str(size[1])
+        
+        size = [size[0], size[1]]
+        return size
+    
     def get_ratio(self, dirname, filename):
         """Return the ratio of the filename (a video)
         Need the "ffmpeg" cli to be on the PATH
@@ -98,7 +106,8 @@ class VideoEncodingToFLV(Video):
         pprint('%s' % isinstance(output, basestring)) 
         """
         if output is not None:
-            ratio = self.grep_ratio(output)
+            size = self.get_size(output)
+            ratio = float(size[0])/float(size[1])
         else:
             ratio = "Cannot calculate the Video ratio"
         return ratio
@@ -111,10 +120,9 @@ class VideoEncodingToFLV(Video):
         ratio = self.get_ratio(tmpfolder, inputfile)
         height = int(round(float(width)/ratio))
         """
-        pprint('===height===')
-        pprint('%s' % height)
-        pprint('===width===')
-        pprint('%s' % width)
+        pprint('======')
+        pprint('Height = %s' % height)
+        pprint('Width = %s' % width)
         """
         ffmpeg = ['ffmpeg', '-i', '%s' % inputfile, '-acodec', 'libfaac', '-ar', '22050',
             '-ab', '32k', '-f', 'flv', '-s', '%sx%s' % (width, height),
