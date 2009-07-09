@@ -75,7 +75,7 @@ class VideoEncodingToFLV(Video):
         m = re.search('Video: [^\\n]*\\n', output)
         #pprint('%s' % m.group(0))
         m = m.group(0).replace('Video: ', '').replace('\n', '').split(', ')
-        pprint("m = %s" % m)
+        #pprint("m = %s" % m)
         # Sometime it returns a '[blabla]', remove it
         size = m[2].split('[')
         size = size[0].split('x')
@@ -162,11 +162,15 @@ class VideoEncodingToFLV(Video):
         return encoded
 
     def make_flv_thumbnail(self, destfolder, filename, width):
+        """ Create a Thumb at t(ime)=0 (percent or time)
+        """
         ffmpegthumbnailer = ['ffmpegthumbnailer', '-i', '%s.flv' % filename,
     '-o', '%s.png' % filename, '-t', '0', '-s', '%s' % width]
         get_pipe(ffmpegthumbnailer, cwd=destfolder)
 
     def add_metadata_to_flv(self, destfolder, filename):
+        """ Add some Metadata to the FLV file, as ffmpeg is not doing that well.
+        """
         flvtool2 = ['flvtool2', '-U', '%s' % filename]
         get_pipe(flvtool2, cwd=destfolder)
 
