@@ -24,7 +24,7 @@ import sys
 from itools.gettext import MSG
 from itools.web import ERROR
 from itools.core.utils import get_pipe
-from itools import vfs
+from itools import fs
 
 # Import from ikaaro
 from ikaaro.folder import Folder
