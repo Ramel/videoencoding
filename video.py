@@ -53,14 +53,18 @@ class VideoEncodingToFLV(Video):
         #dirname = "."
         # The command to get the video ratio
         command = ['ffmpeg', '-i', filename]
-
+        #context = get_context() 
+        #pprint("root.metadata.database.fs.exists = %s" %
+        #       context.root.metadata.database.fs.exists(filename))
         #output = get_pipe(command, cwd=dirname).read()
         #popen = Popen(command, stdout=PIPE, stderr=PIPE, cwd=dirname)
         popen = Popen(command, stdout=PIPE, stderr=PIPE)
         errno = popen.wait()
         output = popen.stderr.read()
-
+        
+        #pprint("pathname = %s" % path.dirname(filename))
         if output is not None:
+            #pprint("output = %s" % output)
             size = self.get_size(output)
             ratio = float(size[0])/float(size[1])
             ratio = [size[0], size[1], ratio]
