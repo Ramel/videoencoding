@@ -99,14 +99,14 @@ class VideoEncodingToFLV(Video):
 
         # The command to get the video ratio
         command = ['ffmpeg', '-i', filename]
-
+        pprint("command = %s" % command)
         #output = get_pipe(command, cwd=dirname).read()
         popen = Popen(command, stdout=PIPE, stderr=PIPE, cwd=dirname)
         errno = popen.wait()
         output = popen.stderr.read()
-        """
         pprint('===output==')
         pprint(output)
+        """
         pprint('===isinstance==')
         pprint('%s' % isinstance(output, basestring))
         """
@@ -166,10 +166,57 @@ class VideoEncodingToFLV(Video):
 
         return encoded
 
+    def make_thumbnail_only(self, tmpfolder, inputfile, name, ext, width):
+        """ Take a *inputfile* video, using is *name*, create a thumbnail as a
+        PNG file in the *tmpfolder*, at given *width*.
+        """
+        flv_filename = "%s.%s" % (name, ext)
+        ratio = self.get_ratio(tmpfolder, inputfile)
+        height = int(round(float(width)/ratio))
+
+        self.add_metadata_to_flv(tmpfolder, flv_filename)
+        self.make_thumbnail(tmpfolder, name, ext, width)
+
+        tmpdir = vfs.open(tmpfolder)
+
+        # Copy the flv content to a data variable
+        flv_file = tmpdir.open(flv_filename)
+        try:
+            flv_data = flv_file.read()
+        finally:
+            flv_file.close()
+
+        # Copy the thumb content
+        thumb_file = tmpdir.open('%s.png' % name)
+        try:
+            thumb_data = thumb_file.read()
+        finally:
+            thumb_file.close()
+        # Need to add the PNG to ikaaro
+
+        # Return a PNG thumbnail
+        flvthumb = ['thumb_%s' % name, 'image/png', thumb_data, 'png']
+
+        if(len(thumb_data) == 0):
+             #exit
+            thumbnail = None
+        else:
+            thumbnail = {'flvthumb':flvthumb}
+
+        return thumbnail
+
+
     def make_flv_thumbnail(self, destfolder, filename, width):
         """ Create a Thumb at t(ime)=0 (percent or time)
         """
         ffmpegthumbnailer = ['ffmpegthumbnailer', '-i', '%s.flv' % filename,
+    '-o', '%s.png' % filename, '-t', '0', '-s', '%s' % width]
+        get_pipe(ffmpegthumbnailer, cwd=destfolder)
+    
+    def make_thumbnail(self, destfolder, filename, ext, width):
+        """ Create a Thumb at t(ime)=0 (percent or time)
+        """
+        ffmpegthumbnailer = ['ffmpegthumbnailer', '-i', '%s.%s' % (filename, ext),
     '-o', '%s.png' % filename, '-t', '0', '-s', '%s' % width]
         get_pipe(ffmpegthumbnailer, cwd=destfolder)
 
