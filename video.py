@@ -99,7 +99,7 @@ class VideoEncodingToFLV(Video):
 
         # The command to get the video ratio
         command = ['ffmpeg', '-i', filename]
-        pprint("command = %s" % command)
+        #pprint("command = %s" % command)
         #output = get_pipe(command, cwd=dirname).read()
         popen = Popen(command, stdout=PIPE, stderr=PIPE, cwd=dirname)
         errno = popen.wait()
