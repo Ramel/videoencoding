@@ -104,9 +104,9 @@ class VideoEncodingToFLV(Video):
         popen = Popen(command, stdout=PIPE, stderr=PIPE, cwd=dirname)
         errno = popen.wait()
         output = popen.stderr.read()
+        """
         pprint('===output==')
         pprint(output)
-        """
         pprint('===isinstance==')
         pprint('%s' % isinstance(output, basestring))
         """
@@ -166,16 +166,16 @@ class VideoEncodingToFLV(Video):
 
         return encoded
 
-    def make_thumbnail_only(self, tmpfolder, inputfile, name, ext, width):
+    def make_thumbnail_only(self, tmpfolder, inputfile, name, width):
         """ Take a *inputfile* video, using is *name*, create a thumbnail as a
         PNG file in the *tmpfolder*, at given *width*.
         """
-        flv_filename = "%s.%s" % (name, ext)
+        flv_filename = "%s" % name
         ratio = self.get_ratio(tmpfolder, inputfile)
         height = int(round(float(width)/ratio))
 
         self.add_metadata_to_flv(tmpfolder, flv_filename)
-        self.make_thumbnail(tmpfolder, name, ext, width)
+        self.make_thumbnail(tmpfolder, name, width)
 
         tmpdir = vfs.open(tmpfolder)
 
@@ -213,10 +213,10 @@ class VideoEncodingToFLV(Video):
     '-o', '%s.png' % filename, '-t', '0', '-s', '%s' % width]
         get_pipe(ffmpegthumbnailer, cwd=destfolder)
     
-    def make_thumbnail(self, destfolder, filename, ext, width):
+    def make_thumbnail(self, destfolder, filename, width):
         """ Create a Thumb at t(ime)=0 (percent or time)
         """
-        ffmpegthumbnailer = ['ffmpegthumbnailer', '-i', '%s.%s' % (filename, ext),
+        ffmpegthumbnailer = ['ffmpegthumbnailer', '-i', '%s' % filename,
     '-o', '%s.png' % filename, '-t', '0', '-s', '%s' % width]
         get_pipe(ffmpegthumbnailer, cwd=destfolder)
 
