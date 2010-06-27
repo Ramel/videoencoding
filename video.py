@@ -79,7 +79,7 @@ class VideoEncodingToFLV(Video):
     def get_size(self, output):
         m = re.search('Video: [^\\n]*\\n', output)
         #pprint('%s' % m.group(0))
-        m = m.group(0).replace('Video: ', '').replace('\n', '').split(', ')
+        m = m.group(0).replace('Video: ','').replace('\n','').split(', ')
         #pprint("m = %s" % m)
         # Sometime it returns a '[blabla]', remove it
         size = m[2].split('[')
@@ -89,7 +89,7 @@ class VideoEncodingToFLV(Video):
         #width = str(size[0])
         #height = str(size[1])
 
-        size = [size[0], size[1]]
+        size = [size[0], size[1].replace(' ','')]
         return size
 
     def get_ratio(self, dirname, filename):
