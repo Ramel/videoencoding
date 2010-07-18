@@ -18,7 +18,7 @@
 import commands
 from subprocess import call, Popen, PIPE
 import re
-import sys
+import sys, os
 
 # Import from itools
 from itools.gettext import MSG
@@ -46,6 +46,26 @@ class VideoEncodingToFLV(Video):
     def encode(self, filename, ratio):
         # Encode
     """
+
+    def get_video_codec(self, filename, vcodec="h264"):
+        """Return a boolean value of the asked codec video encoding
+        """
+        command = ['ffmpeg', '-i', filename]
+        popen = Popen(command, stdout=PIPE, stderr=PIPE)
+        errno = popen.wait()
+        output = popen.stderr.read()
+        
+        if output is not None:
+            print("output = %s" % output)
+            m = re.search('Video: [^\\n]*\\n', output)
+            print('%s' % m.group(0))
+            m = m.group(0).replace('Video: ','').replace('\n','').split(', ')
+            print('%s' % m)
+        else:
+            vcodec = "Cannot retrieve the video codec, sorry!"
+
+        return vcodec
+    
 
     def get_size_and_ratio(self, filename):
         """Return the width, height and ratio of the filename (a video)
@@ -104,18 +124,87 @@ class VideoEncodingToFLV(Video):
         popen = Popen(command, stdout=PIPE, stderr=PIPE, cwd=dirname)
         errno = popen.wait()
         output = popen.stderr.read()
-        """
-        pprint('===output==')
-        pprint(output)
-        pprint('===isinstance==')
-        pprint('%s' % isinstance(output, basestring))
-        """
         if output is not None:
             size = self.get_size(output)
             ratio = float(size[0])/float(size[1])
         else:
             ratio = "Cannot calculate the Video ratio"
         return ratio
+
+    
+    def encode_video_to_flv(self, tmpfolder, inputfile, name, width):
+        """ Take a *inputfile* video, taking is *name*, encode it in flv inside
+        the *tmpfolder*, at given *width*. Return *video_low* and a
+        *video_low_thumb* files of the original file
+        """
+        flv_filename = "%s.flv" % name
+        ratio = self.get_ratio(tmpfolder, inputfile)
+        height = int(round(float(width)/ratio))
+        """
+        pprint('======')
+        print("tmpfolder = %s" % tmpfolder)
+        pprint('Height = %s' % height)
+        pprint('Width = %s' % width)
+        """
+        #TWO PASS
+        # Pass one
+        ffmpeg = ['ffmpeg', '-i', '%s' % inputfile, '-sameq', '-s',
+                  '%sx%s' % (width, height), '-pass', '1', '-vcodec', 'libx264',
+                  '-vpre', 'normal', '-b', '512k',
+                  '-bt', '512k',
+                  '-threads', '0', '-f', 'rawvideo', '-f', 'mp4', '-an', '-y',
+                  '/dev/null']
+        print("Pass 1 : ffmpeg = %s" % ffmpeg)
+        get_pipe(ffmpeg, cwd=tmpfolder)
+        # Pass two
+        ffmpeg = ['ffmpeg', '-i', '%s' % inputfile, '-sameq', '-s',
+                  '%sx%s' % (width, height), '-f', 'mp4', '-pass', '2',
+                  '-acodec', 'libfaac', '-ab', '128k', '-ac', '2', '-vcodec',
+                  'libx264', '-vpre', 'normal', '-b', '512k', '-bt', '512k',
+                  '-threads',  '0', '-metadata', 'author="Tchack"', '-metadata',
+                  'copyright="Tous droits réservés - Tchack/ALUMA Productions"',
+                  flv_filename]
+        print("Pass 2 : ffmpeg = %s" % ffmpeg)
+        """
+        #ONE PASS
+        ffmpeg = ['ffmpeg', '-i', '%s' % inputfile, '-acodec', 'libfaac', '-ar', '22050',
+            '-ab', '32k', '-f', 'flv', '-s', '%sx%s' % (width, height),
+            '-sameq', flv_filename]
+        """
+        get_pipe(ffmpeg, cwd=tmpfolder)
+
+        self.add_metadata_to_flv(tmpfolder, flv_filename)
+        self.make_flv_thumbnail(tmpfolder, name, width)
+
+        tmpdir = vfs.open(tmpfolder)
+
+        # Copy the flv content to a data variable
+        flv_file = tmpdir.open(flv_filename)
+        try:
+            flv_data = flv_file.read()
+        finally:
+            flv_file.close()
+
+        # Copy the thumb content
+        thumb_file = tmpdir.open('%s.png' % name)
+        try:
+            thumb_data = thumb_file.read()
+        finally:
+            thumb_file.close()
+        # Need to add the PNG to ikaaro
+
+        # Return a FLV file and a PNG thumbnail
+        flvfile = ["%s_low" % name, 'video/x-flv', flv_data, 'flv']
+        flvthumb = ['%s_low_thumb' % name, 'image/png', thumb_data, 'png']
+
+        if((len(flv_data) == 0) or (len(thumb_data) == 0)):
+             #exit
+            encoded = None
+        else:
+            encoded = {'flvfile':flvfile, 'flvthumb':flvthumb}
+
+        return encoded
+
 
     def encode_avi_to_flv(self, tmpfolder, inputfile, name, width):
         """ Take a *inputfile* video, tafking is *name*, encode it in flv inside
@@ -165,6 +254,7 @@ class VideoEncodingToFLV(Video):
             encoded = {'flvfile':flvfile, 'flvthumb':flvthumb}
 
         return encoded
+
 
     def make_thumbnail_only(self, tmpfolder, inputfile, name, width):
         """ Take a *inputfile* video, using is *name*, create a thumbnail as a
