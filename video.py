@@ -150,7 +150,8 @@ class VideoEncodingToFLV(Video):
         # Pass one
         ffmpeg = ['ffmpeg', '-i', '%s' % inputfile, '-sameq', '-s',
                   '%sx%s' % (width, height), '-pass', '1', '-vcodec', 'libx264',
-                  '-vpre', 'normal', '-b', '512k',
+                  '-fpre', '/usr/share/ffmpeg/libx264-normal.ffpreset',
+                  '-b', '512k',
                   '-bt', '512k',
                   '-threads', '0', '-f', 'rawvideo', '-f', 'mp4', '-an', '-y',
                   '/dev/null']
@@ -159,8 +160,10 @@ class VideoEncodingToFLV(Video):
         # Pass two
         ffmpeg = ['ffmpeg', '-i', '%s' % inputfile, '-sameq', '-s',
                   '%sx%s' % (width, height), '-f', 'mp4', '-pass', '2',
-                  '-acodec', 'libfaac', '-ab', '128k', '-ac', '2', '-vcodec',
-                  'libx264', '-vpre', 'normal', '-b', '512k', '-bt', '512k',
+                  '-acodec', 'libfaac', '-ab', '128k', '-ac', '2',
+                  '-vcodec', 'libx264',
+                  '-fpre', '/usr/share/ffmpeg/libx264-normal.ffpreset',
+                  '-b', '512k', '-bt', '512k',
                   '-threads',  '0', '-metadata', 'author="Tchack"', '-metadata',
                   'copyright="Tous droits réservés - Tchack/ALUMA Productions"',
                   flv_filename]
