@@ -71,28 +71,19 @@ class VideoEncodingToFLV(Video):
         """Return the width, height and ratio of the filename (a video)
         Need the "ffmpeg" cli to be on the PATH
         """
-        #dirname = "."
         # The command to get the video ratio
         command = ['ffmpeg', '-i', filename]
-        #context = get_context() 
-        #pprint("root.metadata.database.fs.exists = %s" %
-        #       context.root.metadata.database.fs.exists(filename))
-        #output = get_pipe(command, cwd=dirname).read()
-        #popen = Popen(command, stdout=PIPE, stderr=PIPE, cwd=dirname)
+        
         popen = Popen(command, stdout=PIPE, stderr=PIPE)
         errno = popen.wait()
         output = popen.stderr.read()
 
-        #pprint("pathname = %s" % path.dirname(filename))
         if output is not None:
-            #pprint("output = %s" % output)
             size = self.get_size(output)
             ratio = float(size[0])/float(size[1])
             ratio = [size[0], size[1], ratio]
         else:
             ratio = "Cannot calculate the Video size and ratio"
-
-        #pprint("Ratio = %s" % ratio)
 
         return ratio
 
@@ -140,9 +131,6 @@ class VideoEncodingToFLV(Video):
         size = size[0].split('x')
         #ratio = float(size[0])/float(size[1])
 
-        #width = str(size[0])
-        #height = str(size[1])
-
         size = [size[0], size[1].replace(' ','')]
         return size
 
@@ -170,8 +158,6 @@ class VideoEncodingToFLV(Video):
 
         # The command to get the video ratio
         command = ['ffmpeg', '-i', filename]
-        #pprint("command = %s" % command)
-        #output = get_pipe(command, cwd=dirname).read()
         popen = Popen(command, stdout=PIPE, stderr=PIPE, cwd=dirname)
         errno = popen.wait()
         output = popen.stderr.read()
@@ -203,9 +189,7 @@ class VideoEncodingToFLV(Video):
                 even = self.get_next_even_height(
                                         width, original_W, original_H)
                 crop = even * float(original_W) / float(width)
-                print("crop = %s" % crop)
                 crop = crop - int(original_H)
-                print("crop = %s" % crop)
                 height = even
 
         if not even:
@@ -213,7 +197,6 @@ class VideoEncodingToFLV(Video):
             raise NotImplementedError, "%s" % msg
 
         else:
-            print("even = %s" % even)
             if not encode:
                 #TWO PASS
                 # Pass one
@@ -324,11 +307,7 @@ class VideoEncodingToFLV(Video):
         flv_filename = "%s.flv" % name
         ratio = self.get_ratio(tmpfolder, inputfile)
         height = int(round(float(width)/ratio))
-        """
-        pprint('======')
-        pprint('Height = %s' % height)
-        pprint('Width = %s' % width)
-        """
+        
         ffmpeg = ['ffmpeg', '-i', '%s' % inputfile, '-acodec', 'libfaac', '-ar', '22050',
             '-ab', '32k', '-f', 'flv', '-s', '%sx%s' % (width, height),
             '-sameq', flv_filename]
