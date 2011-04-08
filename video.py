@@ -375,7 +375,7 @@ class VideoEncodingToFLV(Video):
         # Need to add the PNG to ikaaro
 
         # Return a PNG thumbnail
-        flvthumb = ['thumb_%s' % name, 'image/png', thumb_data, 'png']
+        flvthumb = ['%s_thumb' % name, 'image/png', thumb_data, 'png']
 
         if(len(thumb_data) == 0):
              #exit
