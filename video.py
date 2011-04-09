@@ -73,7 +73,7 @@ class VideoEncodingToFLV(Video):
         """
         # The command to get the video ratio
         command = ['ffmpeg', '-i', filename]
-        
+
         popen = Popen(command, stdout=PIPE, stderr=PIPE)
         errno = popen.wait()
         output = popen.stderr.read()
@@ -169,7 +169,7 @@ class VideoEncodingToFLV(Video):
         return ratio
 
 
-    def encode_video_to_flv(self, tmpfolder, inputfile, 
+    def encode_video_to_flv(self, tmpfolder, inputfile,
                                     name, width, encode=False):
         """ Take a *inputfile* video, taking is *name*, encode it in flv inside
         the *tmpfolder*, at given *width*. Return *video_low* and a
@@ -185,7 +185,7 @@ class VideoEncodingToFLV(Video):
             if self.check_resize_height_is_even(width, original_W, original_H):
                 even = True
                 crop = False
-            else: 
+            else:
                 even = self.get_next_even_height(
                                         width, original_W, original_H)
                 crop = even * float(original_W) / float(width)
@@ -221,7 +221,7 @@ class VideoEncodingToFLV(Video):
                           flv_filename]
                 print("Pass 2 : ffmpeg = %s" % ffmpeg)
                 get_pipe(ffmpeg, cwd=tmpfolder)
-
+            
             elif encode == 'one':
                 #ONE PASS
                 ffmpeg = ['ffmpeg', '-i', '%s' % inputfile, '-acodec', 'libfaac', '-ar', '22050',
@@ -253,7 +253,7 @@ class VideoEncodingToFLV(Video):
                             '-r', '20',
                             '-metadata', 'author="Tchack"',
                             '-metadata', 'copyright="Tous droits réservés - Tchack/ALUMA Productions"',
-                            #'-vf', 'crop=in_w:in_h+%s' % int(crop), 
+                            #'-vf', 'crop=in_w:in_h+%s' % int(crop),
                             #tmp_flv_filename]
                             flv_filename]
                 if crop:
@@ -307,7 +307,7 @@ class VideoEncodingToFLV(Video):
         flv_filename = "%s.flv" % name
         ratio = self.get_ratio(tmpfolder, inputfile)
         height = int(round(float(width)/ratio))
-        
+
         ffmpeg = ['ffmpeg', '-i', '%s' % inputfile, '-acodec', 'libfaac', '-ar', '22050',
             '-ab', '32k', '-f', 'flv', '-s', '%sx%s' % (width, height),
             '-sameq', flv_filename]
