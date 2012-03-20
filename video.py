@@ -232,7 +232,8 @@ class VideoEncodingToFLV(Video):
             elif encode == 'one_chroma_faststart':
                 tmp_flv_filename = "tmp_%s.flv" % name
                 ffmpeg= ['ffmpeg', '-y', '-i', '%s' % inputfile,
-                            '-fpre', '/usr/share/ffmpeg/libx264-hq.ffpreset',
+                            #'-fpre', '/usr/share/ffmpeg/libx264-hq.ffpreset',
+                            '-preset', 'fast',
                             '-s', '%sx%s' % (width, height),
                             '-vcodec', 'libx264',
                             '-b', '512k',
