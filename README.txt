@@ -6,6 +6,8 @@ Requirements
 
 Software      Version  Used by            Home
 ----------    -------  ----------------   --------------------------------------
+itools        0.62.1                      https://www.github.com/hforge/itools
+ikaaro        0.62.1                      https://www.github.com/hforge/ikaaro
 tchacker      0.62                        https://www.github/Ramel/tchacker
 
 
