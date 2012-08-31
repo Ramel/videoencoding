@@ -1,5 +1,7 @@
 Videoencoding is a module for the Tchaker module for the Ikaaro CMS.
 
+It use Ffmpeg and x264 for encoding submited video int the Tchacker.
+The videos are displayed with the Flowplayer player, which is included.
 
 Requirements
 ============
@@ -9,7 +11,8 @@ Software      Version  Used by            Home
 itools        0.62.1                      https://www.github.com/hforge/itools
 ikaaro        0.62.1                      https://www.github.com/hforge/ikaaro
 tchacker      0.62                        https://www.github/Ramel/tchacker
-
+ffmpeg                                    https://ffmpeg.org/trac/ffmpeg/wiki/UbuntuCompilationGuide        
+x264
 
 Install
 =============
