@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 # Copyright (C) 2007-2008 Juan David Ibáñez Palomar <jdavid@itaapy.com>
 # Copyright (C) 2008 Nicolas Deram <nicolas@itaapy.com>
-# Copyright (C) 2009 Armel FORTUN <armel@maar.fr>
+# Copyright (C) 2009 Armel FORTUN <armel@tchack.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
