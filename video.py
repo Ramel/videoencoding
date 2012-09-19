@@ -29,7 +29,7 @@ from itools.fs import vfs
 
 # Import from ikaaro
 from ikaaro.folder import Folder
-from ikaaro.registry import register_resource_class
+from ikaaro.database import Database
 from ikaaro.file import Video
 
 # Debug
@@ -410,4 +410,4 @@ class VideoEncodingToFLV(Video):
 
 ###########################################################################
 # Register
-register_resource_class(VideoEncodingToFLV)
+Database.register_resource_class(VideoEncodingToFLV)
