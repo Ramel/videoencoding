@@ -221,7 +221,7 @@ class VideoEncodingToFLV(Video):
                           flv_filename]
                 print("Pass 2 : ffmpeg = %s" % ffmpeg)
                 get_pipe(ffmpeg, cwd=tmpfolder)
-            
+
             elif encode == 'one':
                 #ONE PASS
                 ffmpeg = ['ffmpeg', '-i', '%s' % inputfile, '-acodec', 'libfaac', '-ar', '22050',
